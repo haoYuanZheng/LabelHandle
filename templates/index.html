@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width"/>
+    <meta name="renderer" content="webkit|ie-comp|ie-stand">
+    <script src="/static/js/jquery-1.8.3.min.js"></script>
+    <link href="/static/filter/Fliter.css" rel="stylesheet"/>
+    <link href="/static/css/tabStyle.css" rel="stylesheet" type="text/css">
+    <script src="/static/js/tabScript.js" type="text/javascript"></script>
+    <script src="/static/filter/Filter.js"></script>
+    <style>
+        #nav {
+            line-height: 30px;
+            background-color: #eeeeee;
+            height: 1000px;
+            width: 200px;
+            float: left;
+            padding: 5px;
+        }
+
+        #center {
+            float: right;
+            width: calc(100% - 210px);
+        }
+
+        li {
+            float: left;
+            list-style: none;
+        }
+
+        img {
+            width: 200px;
+            height: 200px;
+        }
+    </style>
+</head>
+<body>
+<div id="nav">
+    <h4>第一步:选择文件上传</h4>
+    <form action="" method="post" enctype="multipart/form-data">
+        <p>
+            <input type="file" name="file" multiple>
+            <input type=submit value="upload">
+        </p>
+    </form>
+    <ul style="list-style: none;padding-left: 0" id="uploadFileList"></ul>
+    <h4>第二步:图片浏览,选择对应标签</h4>
+    <img id="showImage">
+    <h4>第三步:保存生成的标签并生成JSON</h4>
+    <button id="save_select" type="button">保存当前tab页筛选条件</button>
+    <button id="create_json" type="button">生成JSON</button>
+</div>
+<div id="center">
+    <ul class="tabs">
+        <li><a id="tabOne" href="#" name=".tab1_1">缩放</a></li>
+        <li><a id="tabTwo" href="#" name=".tab1_2">旋转</a></li>
+        <li><a id="tabThree" href="#" name=".tab1_3">增加背景</a></li>
+        <li><a id="tabFour" href="#" name=".tab1_4">模糊</a></li>
+        <li><a id="tabFive" href="#" name=".tab1_5">曝光度</a></li>
+        <li><a id="tabSix" href="#" name=".tab1_6">高斯噪声</a></li>
+    </ul>
+    <div class="content">
+        <div class="tab1_1">
+            <div id="scale"></div>
+            <ul id="processImage1">
+            </ul>
+        </div>
+        <div class="tab1_2">
+            <div id="rotate"></div>
+            <ul id="processImage2">
+            </ul>
+        </div>
+        <div class="tab1_3">
+            <div id="addsum"></div>
+            <ul id="processImage3">
+            </ul>
+        </div>
+         <div class="tab1_4">
+            <div id="fuzzy"></div>
+            <ul id="processImage4">
+            </ul>
+        </div>
+        <div class="tab1_5">
+            <div id="brighter_darker"></div>
+            <ul id="processImage5">
+            </ul>
+        </div>
+        <div class="tab1_6">
+            <div id="gaussian_noise"></div>
+            <ul id="processImage6">
+            </ul>
+        </div>
+    </div>
+</div>
+<input hidden="hidden" id="revolve_json" type="text" value="">
+<input hidden="hidden" id="dim_json" type="text" value="">
+<input hidden="hidden" id="mosaic_json" type="text" value="">
+
+<input hidden="hidden" id="real_json1" type="text" value="">
+<input hidden="hidden" id="real_json2" type="text" value="">
+<input hidden="hidden" id="real_json3" type="text" value="">
+
+<input hidden="hidden" id="old_value1" type="text" value="">
+<input hidden="hidden" id="old_value2" type="text" value="">
+<input hidden="hidden" id="old_value3" type="text" value="">
+<script type="text/javascript">
+    //当前图片url全局变量
+    var currentUrl;
+    var currentImageName;
+    var currentType = 1;
+    var needCooperateId;
+
+    //id等于拼装时的值,text是页面展示的值
+    var data1 = [{"id": 0, "text": "缩放0倍"}, {"id": 1, "text": "缩放1倍"}, {"id": 2, "text": "缩放2倍"}, {"id": 3, "text": "缩放3倍"}, {"id": 4, "text": "缩放4倍"}, {"id": 5, "text": "缩放5倍"},
+        {"id": 6, "text": "缩放6倍"}, {"id": 7, "text": "缩放7倍"}, {"id": 8, "text": "缩放8倍"}, {"id": 9, "text": "缩放9倍"}, {"id": 10, "text": "缩放10倍"}];
+
+    var data2 = [
+        {"id": -10, "text": "旋转-10度"}, {"id": -9, "text": "旋转-9度"}, {"id": -8, "text": "旋转-8度"}, {"id": -7, "text": "旋转-7度"}, {"id": -6, "text": "旋转-6度"}, {"id": -5, "text": "旋转-5度"},
+        {"id": -4, "text": "旋转-4度"}, {"id": -3, "text": "旋转-3度"}, {"id": -2, "text": "旋转-2度"}, {"id": -1, "text": "旋转-1度"}, {"id": 0, "text": "旋转0度"}, {"id": 1, "text": "旋转1度"},
+        {"id": 2, "text": "旋转2度"}, {"id": 3, "text": "旋转3度"}, {"id": 4, "text": "旋转4度"}, {"id": 5, "text": "旋转5度"}, {"id": 6, "text": "旋转6度"}, {"id": 7, "text": "旋转7度"},
+        {"id": 8, "text": "旋转8度"}, {"id": 9, "text": "旋转9度"}, {"id": 10, "text": "旋转10度"}];
+
+    var data3 = [
+        {"id": 0, "text": "背景0"}, {"id": 1, "text": "背景1"}, {"id": 2, "text": "背景2"}, {"id": 3, "text": "背景3"}, {"id": 4, "text": "背景4"}, {"id": 5, "text": "背景5"}];
+
+    var data4 = [
+        {"id": 0, "text": "模糊0倍"}, {"id": 1, "text": "模糊1倍"}, {"id": 2, "text": "模糊2倍"}, {"id": 3, "text": "模糊3倍"}, {"id": 4, "text": "模糊4倍"}, {"id": 5, "text": "模糊5倍"},
+        {"id": 6, "text": "模糊6倍"}, {"id": 7, "text": "模糊7倍"}, {"id": 8, "text": "模糊8倍"}, {"id": 9, "text": "模糊9倍"}, {"id": 10, "text": "模糊10倍"}];
+
+    var data5 = [
+        {"id": 0, "text": "曝光0度"}, {"id": 1, "text": "曝光1度"}, {"id": 2, "text": "曝光2度"}, {"id": 3, "text": "曝光3度"}];
+
+    var data6 = [
+        {"id": 0, "text": "噪声0"}, {"id": 100, "text": "噪声100"}, {"id": 200, "text": "噪声200"}, {"id": 300, "text": "噪声300"}, {"id": 400, "text": "噪声400"}, {"id": 500, "text": "噪声500"},
+        {"id": 600, "text": "噪声600"}, {"id": 700, "text": "噪声700"}, {"id": 800, "text": "噪声800"}, {"id": 900, "text": "噪声900"}, {"id": 1000, "text": "噪声1000"}];
+
+    //初始化
+    $(function () {
+        //加载tab页
+        loadTab();
+        initOne();
+
+        $.ajax({
+            url: "view",
+            type: "POST",
+            dataType: "json",
+            success: function (data) {
+                var list = "";
+                var map = data;
+                for (var key in map) {
+                    list += "<ol value='" + map[key] + "'>" + key + "</ol>";
+                }
+                $("#uploadFileList").append(list);
+            }
+        });
+
+        //列表点击事件
+        $('ul').on('click', 'ol', function () {
+            var url = $(this).attr("value");
+            var imgName = $(this).text();
+            currentImageName = imgName;
+            currentUrl = url;
+            $("#showImage").attr("src", url);
+            $(".J_FilterQueryClear").click();
+        });
+
+
+        $(".J_FilterQueryClear").click(function () {
+            $("#processImage" + currentType).find("li").remove();
+            $("#revolve").val("");
+            $("#dim_json").val("");
+            $("#mosaic_json").val("");
+        });
+
+        //生成JSON按钮点击事件
+        $("#create_json").click(function () {
+            var wholeJson = "{";
+            var rev = $("#real_json1").val();
+            var dim = $("#real_json2").val();
+            var mos = $("#real_json3").val();
+            if (rev != null && rev != "") {
+                wholeJson += rev + ",";
+            } else {
+                wholeJson += '"revolve":[],';
+            }
+            if (dim != null && dim != "") {
+                wholeJson += dim + ",";
+            } else {
+                wholeJson += '"dim":[],';
+            }
+            if (mos != null && mos != "") {
+                wholeJson += mos + "}";
+            } else {
+                wholeJson += '"mosaic:"[]}'
+            }
+            alert(JSON.stringify(wholeJson));
+        });
+
+        //保存标签按钮点击事件
+        $("#save_select").click(function () {
+            if (currentType == 1) {
+                var rev = $("#revolve_json").val();
+                if (rev == null || rev == "") {
+                    rev = '"revolve":[]';
+                }
+                $("#real_json1").val(rev);
+            } else if (currentType == 2) {
+                var dim = $("#dim_json").val();
+                if (dim == null || dim == "") {
+                    dim = '"dim":[]';
+                }
+                $("#real_json2").val(dim);
+            } else {
+                var mos = $("#mosaic_json").val();
+                if (mos == null || mos == "") {
+                    mos = '"mosaic:"[]';
+                }
+                $("#real_json3").val(mos);
+            }
+        });
+
+        //tab页点击方法
+        $("#tabOne").click(function () {
+            initOne();
+        });
+
+        $("#tabTwo").click(function () {
+            initTwo();
+        });
+
+        $("#tabThree").click(function () {
+            initThree();
+        });
+    });
+
+    //获取标签操作后的图片，增加展示
+    function addLi(url, type, id) {
+        var list = "<li id='" + id + type + "'>" + "<img src='" + url + "'>" + "</li>";
+        if (type == "one") {
+            $("#processImage1").append(list);
+        } else if (type == "two") {
+            $("#processImage2").append(list);
+        } else {
+            $("#processImage3").append(list);
+        }
+    }
+
+    //初始化勾选框
+    function initOne() {
+        $('#scale').comboboxfilter({
+            url: '',
+            scope: 'FilterQuery2',
+            multiple: true,
+            unlimitText: '旋转',
+            data: data1,
+            onChange: function (newValue) {
+                //自动拼接到备用json字段
+                var revolveData = '"revolve":';
+                revolveData += '[' + newValue + ']';
+                $('#revolve_json').val(revolveData);
+
+                //找出不同元素，进行增加或者删除操作
+                var oldValue = $("#old_value1").val();
+                var curValue;
+                if (oldValue != null && oldValue != "") {
+                    oldValue = oldValue.split(",");
+                } else {
+                    oldValue = [];
+                }
+                if (newValue != null && newValue != "") {
+                    curValue = newValue.split(",");
+                } else {
+                    curValue = [];
+                }
+                if (oldValue.length > curValue.length) {
+                    findDifferent(oldValue, curValue);
+                    $("#" + needCooperateId + "one").remove();
+                } else {
+                    findDifferent(curValue, oldValue);
+                    getProcessImage(currentImageName, 1, needCooperateId);
+                    addLi(currentUrl, "one", needCooperateId);
+                }
+
+                //保存最新value到oldvalue以便下次进行比较
+                $("#old_value1").val(newValue);
+            }
+        });
+        //取消切换tab页后自动增加的隐藏样式,并设置当前tab页的全局标识
+        $("#revolve").css("display", "block");
+        $("#FilterQuery2").css("display", "block");
+        $(".selected-query").css("display", "block");
+        currentType = 1;
+
+        //清除图片和标签
+        $(".J_FilterQueryClear").click();
+        $("#processImage1").find("li").remove();
+    }
+
+    function initTwo() {
+        $('#dim').comboboxfilter({
+            url: '',
+            scope: 'FilterQuery2',
+            multiple: true,
+            unlimitText: '模糊',
+            data: data2,
+            onChange: function (newValue) {
+                var dimData = '"dim":';
+                dimData += '[' + newValue + ']';
+                $('#dim_json').val(dimData);
+
+                //找出不同元素，进行增加或者删除操作
+                var oldValue = $("#old_value2").val();
+                var curValue;
+                if (oldValue != null && oldValue != "") {
+                    oldValue = oldValue.split(",");
+                } else {
+                    oldValue = [];
+                }
+                if (newValue != null && newValue != "") {
+                    curValue = newValue.split(",");
+                } else {
+                    curValue = [];
+                }
+                if (oldValue.length > curValue.length) {
+                    findDifferent(oldValue, curValue);
+                    $("#" + needCooperateId + "two").remove();
+                } else {
+                    findDifferent(curValue, oldValue);
+                    addLi(currentUrl, "two", needCooperateId);
+                }
+
+                //保存最新value到oldvalue以便下次进行比较
+                $("#old_value2").val(newValue);
+            }
+        });
+        $("#dim").css("display", "block");
+        $("#FilterQuery2").css("display", "block");
+        currentType = 2;
+
+        //清除图片和标签
+        $(".J_FilterQueryClear").click();
+        $("#processImage2").find("li").remove();
+    }
+
+    function initThree() {
+        $('#mosaic').comboboxfilter({
+            url: '',
+            scope: 'FilterQuery2',
+            multiple: true,
+            unlimitText: '打马',
+            data: data3,
+            onChange: function (newValue) {
+                var mosaicData = '"mosaic":';
+                mosaicData += '[' + newValue + ']';
+                $('#mosaic_json').val(mosaicData);
+
+                //找出不同元素，进行增加或者删除操作
+                var oldValue = $("#old_value3").val();
+                var curValue;
+                if (oldValue != null && oldValue != "") {
+                    oldValue = oldValue.split(",");
+                } else {
+                    oldValue = [];
+                }
+                if (newValue != null && newValue != "") {
+                    curValue = newValue.split(",");
+                } else {
+                    curValue = [];
+                }
+                if (oldValue.length > curValue.length) {
+                    findDifferent(oldValue, curValue);
+                    $("#" + needCooperateId + "three").remove();
+                } else {
+                    findDifferent(curValue, oldValue);
+                    addLi(currentUrl, "three", needCooperateId);
+                }
+
+                //保存最新value到oldvalue以便下次进行比较
+                $("#old_value3").val(newValue);
+            }
+        });
+        $("#mosaic").css("display", "block");
+        $("#FilterQuery2").css("display", "block");
+        currentType = 3;
+
+        //清除图片和标签
+        $(".J_FilterQueryClear").click();
+        $("#processImage3").find("li").remove();
+    }
+
+    //找出两个数组中不同的元素,array1>array2
+    function findDifferent(array1, array2) {
+        var differValue = array1[0];
+        for (var i = 0; i < array1.length; i++) {
+            for (var j = 0; j < array2.length; j++) {
+                if (array1[i] == array2[j]) {
+                    if (differValue == array1[i]) {
+                        differValue = null;
+                    }
+                    break;
+                } else {
+                    differValue = array1[i];
+                    continue;
+                }
+            }
+        }
+        needCooperateId = differValue;
+    }
+
+    //获取加工后的图片
+    function getProcessImage(image, type, value) {
+        var data = {};
+        var op = [];
+        var processType = {};
+        data["image_path"] = image;
+        switch (type) {
+            case 1:
+                processType["name"] = "scale";
+                processType["value"] = value;
+                break;
+            case 2:
+                processType["name"] = "rotate";
+                processType["value"] = value;
+                break;
+            case 3:
+                processType["name"] = "addsum";
+                processType["value"] = value;
+                break;
+            case 4:
+                processType["name"] = "fuzzy";
+                processType["value"] = value;
+                break;
+            case 5:
+                processType["name"] = "brighter_darker";
+                processType["value"] = value;
+                break;
+            case 6:
+                processType["name"] = "gaussian_noise";
+                processType["value"] = value;
+                break;
+        }
+        data["op"] = op;
+        data = JSON.stringify(data);
+        $.ajax({
+            async: true,
+            {#url: "http://172.19.2.11:5000/v1/img_transform",#}
+            url: "getImageTest",
+            type: "POST",
+            data: data,
+            dataType: "json",
+            success: function (res) {
+                if (res != null && res != "") {
+                    currentUrl = "static/uploads/images/" + res;
+                }
+            }
+        });
+    }
+</script>
+</body>
+</html>
+
+
