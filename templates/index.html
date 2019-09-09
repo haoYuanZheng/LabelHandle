@@ -48,14 +48,38 @@
     <h4>第二步:图片浏览,选择对应标签</h4>
     <img id="showImage">
     <h4>第三步:保存生成的标签并生成JSON</h4>
-    <button id="save_select" type="button">保存当前tab页筛选条件</button>
+    <span>缩放:</span>
+    <select id="s1">
+        <option selected="selected" value="">-</option>
+    </select>
+    <span>旋转:</span>
+    <select id="s2">
+        <option selected="selected" value="">-</option>
+    </select>
+{#    <span>背景:</span>#}
+{#    <select id="s3">#}
+{#        <option selected="selected" value="">-</option>#}
+{#    </select>#}
+    <span>模糊:</span>
+    <select id="s4">
+        <option selected="selected" value="">-</option>
+    </select>
+    <span>曝光:</span>
+    <select id="s5">
+        <option selected="selected" value="">-</option>
+    </select>
+    <span>噪声:</span>
+    <select id="s6">
+        <option selected="selected" value="">-</option>
+    </select>
     <button id="create_json" type="button">生成JSON</button>
 </div>
+
 <div id="center">
     <ul class="tabs">
         <li><a id="tabOne" href="#" name=".tab1_1">缩放</a></li>
         <li><a id="tabTwo" href="#" name=".tab1_2">旋转</a></li>
-        <li><a id="tabThree" href="#" name=".tab1_3">增加背景</a></li>
+{#        <li><a id="tabThree" href="#" name=".tab1_3">增加背景</a></li>#}
         <li><a id="tabFour" href="#" name=".tab1_4">模糊</a></li>
         <li><a id="tabFive" href="#" name=".tab1_5">曝光度</a></li>
         <li><a id="tabSix" href="#" name=".tab1_6">高斯噪声</a></li>
@@ -71,11 +95,11 @@
             <ul id="processImage2">
             </ul>
         </div>
-        <div class="tab1_3">
-            <div id="addsum"></div>
-            <ul id="processImage3">
-            </ul>
-        </div>
+{#        <div class="tab1_3">#}
+{#            <div id="addsum"></div>#}
+{#            <ul id="processImage3">#}
+{#            </ul>#}
+{#        </div>#}
          <div class="tab1_4">
             <div id="fuzzy"></div>
             <ul id="processImage4">
@@ -93,17 +117,12 @@
         </div>
     </div>
 </div>
-<input hidden="hidden" id="revolve_json" type="text" value="">
-<input hidden="hidden" id="dim_json" type="text" value="">
-<input hidden="hidden" id="mosaic_json" type="text" value="">
-
-<input hidden="hidden" id="real_json1" type="text" value="">
-<input hidden="hidden" id="real_json2" type="text" value="">
-<input hidden="hidden" id="real_json3" type="text" value="">
-
 <input hidden="hidden" id="old_value1" type="text" value="">
 <input hidden="hidden" id="old_value2" type="text" value="">
-<input hidden="hidden" id="old_value3" type="text" value="">
+{#<input hidden="hidden" id="old_value3" type="text" value="">#}
+<input hidden="hidden" id="old_value4" type="text" value="">
+<input hidden="hidden" id="old_value5" type="text" value="">
+<input hidden="hidden" id="old_value6" type="text" value="">
 <script type="text/javascript">
     //当前图片url全局变量
     var currentUrl;
@@ -112,34 +131,30 @@
     var needCooperateId;
 
     //id等于拼装时的值,text是页面展示的值
-    var data1 = [{"id": 0, "text": "缩放0倍"}, {"id": 1, "text": "缩放1倍"}, {"id": 2, "text": "缩放2倍"}, {"id": 3, "text": "缩放3倍"}, {"id": 4, "text": "缩放4倍"}, {"id": 5, "text": "缩放5倍"},
-        {"id": 6, "text": "缩放6倍"}, {"id": 7, "text": "缩放7倍"}, {"id": 8, "text": "缩放8倍"}, {"id": 9, "text": "缩放9倍"}, {"id": 10, "text": "缩放10倍"}];
+    var data1 = [{"id": 0, "text": "0倍"}, {"id": 1, "text": "1倍"}, {"id": 2, "text": "2倍"}, {"id": 3, "text": "3倍"}, {"id": 4, "text": "4倍"}, {"id": 5, "text": "5倍"}, {"id": 6, "text": "6倍"}, {"id": 7, "text": "7倍"}, {"id": 8, "text": "8倍"}, {"id": 9, "text": "9倍"}, {"id": 10, "text": "10倍"}];
 
-    var data2 = [
-        {"id": -10, "text": "旋转-10度"}, {"id": -9, "text": "旋转-9度"}, {"id": -8, "text": "旋转-8度"}, {"id": -7, "text": "旋转-7度"}, {"id": -6, "text": "旋转-6度"}, {"id": -5, "text": "旋转-5度"},
-        {"id": -4, "text": "旋转-4度"}, {"id": -3, "text": "旋转-3度"}, {"id": -2, "text": "旋转-2度"}, {"id": -1, "text": "旋转-1度"}, {"id": 0, "text": "旋转0度"}, {"id": 1, "text": "旋转1度"},
-        {"id": 2, "text": "旋转2度"}, {"id": 3, "text": "旋转3度"}, {"id": 4, "text": "旋转4度"}, {"id": 5, "text": "旋转5度"}, {"id": 6, "text": "旋转6度"}, {"id": 7, "text": "旋转7度"},
-        {"id": 8, "text": "旋转8度"}, {"id": 9, "text": "旋转9度"}, {"id": 10, "text": "旋转10度"}];
+    var data2 = [{"id": -10, "text": "-10度"}, {"id": -9, "text": "-9度"}, {"id": -8, "text": "-8度"}, {"id": -7, "text": "-7度"}, {"id": -6, "text": "-6度"}, {"id": -5, "text": "-5度"}, {"id": -4, "text": "-4度"}, {"id": -3, "text": "-3度"}, {"id": -2, "text": "-2度"}, {"id": -1, "text": "-1度"}, {"id": 0, "text": "0度"}, {"id": 1, "text": "1度"}, {"id": 2, "text": "2度"}, {"id": 3, "text": "3度"}, {"id": 4, "text": "4度"}, {"id": 5, "text": "5度"}, {"id": 6, "text": "6度"}, {"id": 7, "text": "7度"}, {"id": 8, "text": "8度"}, {"id": 9, "text": "9度"}, {"id": 10, "text": "10度"}];
 
-    var data3 = [
-        {"id": 0, "text": "背景0"}, {"id": 1, "text": "背景1"}, {"id": 2, "text": "背景2"}, {"id": 3, "text": "背景3"}, {"id": 4, "text": "背景4"}, {"id": 5, "text": "背景5"}];
+    {#var data3 = [{"id": 0, "text": "背景0"}, {"id": 1, "text": "背景1"}, {"id": 2, "text": "背景2"}, {"id": 3, "text": "背景3"}, {"id": 4, "text": "背景4"}, {"id": 5, "text": "背景5"}];#}
 
-    var data4 = [
-        {"id": 0, "text": "模糊0倍"}, {"id": 1, "text": "模糊1倍"}, {"id": 2, "text": "模糊2倍"}, {"id": 3, "text": "模糊3倍"}, {"id": 4, "text": "模糊4倍"}, {"id": 5, "text": "模糊5倍"},
-        {"id": 6, "text": "模糊6倍"}, {"id": 7, "text": "模糊7倍"}, {"id": 8, "text": "模糊8倍"}, {"id": 9, "text": "模糊9倍"}, {"id": 10, "text": "模糊10倍"}];
+    var data4 = [{"id": 0, "text": "0倍"}, {"id": 1, "text": "1倍"}, {"id": 2, "text": "2倍"}, {"id": 3, "text": "3倍"}, {"id": 4, "text": "4倍"}, {"id": 5, "text": "5倍"}, {"id": 6, "text": "6倍"}, {"id": 7, "text": "7倍"}, {"id": 8, "text": "8倍"}, {"id": 9, "text": "9倍"}, {"id": 10, "text": "10倍"}];
 
-    var data5 = [
-        {"id": 0, "text": "曝光0度"}, {"id": 1, "text": "曝光1度"}, {"id": 2, "text": "曝光2度"}, {"id": 3, "text": "曝光3度"}];
+    var data5 = [{"id": 0, "text": "0度"}, {"id": 1, "text": "1度"}, {"id": 2, "text": "2度"}, {"id": 3, "text": "3度"}];
 
-    var data6 = [
-        {"id": 0, "text": "噪声0"}, {"id": 100, "text": "噪声100"}, {"id": 200, "text": "噪声200"}, {"id": 300, "text": "噪声300"}, {"id": 400, "text": "噪声400"}, {"id": 500, "text": "噪声500"},
-        {"id": 600, "text": "噪声600"}, {"id": 700, "text": "噪声700"}, {"id": 800, "text": "噪声800"}, {"id": 900, "text": "噪声900"}, {"id": 1000, "text": "噪声1000"}];
+    var data6 = [{"id": 0, "text": "0"}, {"id": 100, "text": "100"}, {"id": 200, "text": "200"}, {"id": 300, "text": "300"}, {"id": 400, "text": "400"}, {"id": 500, "text": "500"}, {"id": 600, "text": "600"}, {"id": 700, "text": "700"}, {"id": 800, "text": "800"}, {"id": 900, "text": "900"}, {"id": 1000, "text": "1000"}];
 
     //初始化
     $(function () {
         //加载tab页
         loadTab();
-        initOne();
+        //加载上部分勾选框和下部分单选框
+        initSelect("scale","缩放",data1,1,"one");
+        initSingleSelect("s1",data1);
+        initSingleSelect("s2",data2);
+        {#initSingleSelect("s3",data3);#}
+        initSingleSelect("s4",data4);
+        initSingleSelect("s5",data5);
+        initSingleSelect("s6",data6);
 
         $.ajax({
             url: "view",
@@ -168,69 +183,91 @@
 
         $(".J_FilterQueryClear").click(function () {
             $("#processImage" + currentType).find("li").remove();
-            $("#revolve").val("");
-            $("#dim_json").val("");
-            $("#mosaic_json").val("");
         });
 
         //生成JSON按钮点击事件
         $("#create_json").click(function () {
-            var wholeJson = "{";
-            var rev = $("#real_json1").val();
-            var dim = $("#real_json2").val();
-            var mos = $("#real_json3").val();
-            if (rev != null && rev != "") {
-                wholeJson += rev + ",";
-            } else {
-                wholeJson += '"revolve":[],';
+            var data = {};
+            var op = [];
+            var processType = {};
+            data["image_path"] = currentImageName;
+
+            var s1 = $("#s1").val();
+            var s2 = $("#s2").val();
+            {#var s3 = $("#s3").val();#}
+            var s4 = $("#s4").val();
+            var s5 = $("#s5").val();
+            var s6 = $("#s6").val();
+
+            if (s1 != null && s1 != "") {
+                processType["name"] = "scale";
+                processType["value"] = s1;
+                op.push(processType);
             }
-            if (dim != null && dim != "") {
-                wholeJson += dim + ",";
-            } else {
-                wholeJson += '"dim":[],';
+            if (s2 != null && s2 != "") {
+                processType = {};
+                processType["name"] = "rotate";
+                processType["value"] = s2;
+                op.push(processType);
             }
-            if (mos != null && mos != "") {
-                wholeJson += mos + "}";
-            } else {
-                wholeJson += '"mosaic:"[]}'
+            {#if (s3 != null && s3 != "") {
+                processType = {};
+                processType["name"] = "addsum";
+                processType["value"] = s3;
+                op.push(processType);
+            }#}
+            if (s4 != null && s4 != "") {
+                processType = {};
+                processType["name"] = "fuzzy";
+                processType["value"] = s4;
+                op.push(processType);
             }
-            alert(JSON.stringify(wholeJson));
+            if (s5 != null && s5 != "") {
+                processType = {};
+                processType["name"] = "brighter_darker";
+                processType["value"] = s5;
+                op.push(processType);
+            }
+            if (s6 != null && s6 != "") {
+                processType = {};
+                processType["name"] = "gaussian_noise";
+                processType["value"] = s6;
+                op.push(processType);
+            }
+            data["op"] = op;
+            alert(JSON.stringify(data));
         });
 
-        //保存标签按钮点击事件
-        $("#save_select").click(function () {
-            if (currentType == 1) {
-                var rev = $("#revolve_json").val();
-                if (rev == null || rev == "") {
-                    rev = '"revolve":[]';
-                }
-                $("#real_json1").val(rev);
-            } else if (currentType == 2) {
-                var dim = $("#dim_json").val();
-                if (dim == null || dim == "") {
-                    dim = '"dim":[]';
-                }
-                $("#real_json2").val(dim);
-            } else {
-                var mos = $("#mosaic_json").val();
-                if (mos == null || mos == "") {
-                    mos = '"mosaic:"[]';
-                }
-                $("#real_json3").val(mos);
-            }
-        });
 
         //tab页点击方法
         $("#tabOne").click(function () {
-            initOne();
+            emptyOldValue();
+            initSelect("scale","缩放",data1,1,"one");
         });
 
         $("#tabTwo").click(function () {
-            initTwo();
+            emptyOldValue();
+            initSelect("rotate","旋转",data2,2,"two");
         });
 
-        $("#tabThree").click(function () {
-            initThree();
+       {# $("#tabThree").click(function () {
+            emptyOldValue();
+            initSelect("addsum","增加背景",data3,3,"three");
+        });#}
+
+        $("#tabFour").click(function () {
+            emptyOldValue();
+            initSelect("fuzzy","模糊",data4,4,"four");
+        });
+
+        $("#tabFive").click(function () {
+            emptyOldValue();
+            initSelect("brighter_darker","曝光度",data5,5,"five");
+        });
+
+        $("#tabSix").click(function () {
+            emptyOldValue();
+            initSelect("gaussian_noise","高斯噪声",data6,6,"six");
         });
     });
 
@@ -241,27 +278,28 @@
             $("#processImage1").append(list);
         } else if (type == "two") {
             $("#processImage2").append(list);
-        } else {
+        } else if (type == "three") {
             $("#processImage3").append(list);
+        }else if (type == "four"){
+            $("#processImage4").append(list);
+        } else if (type == "five"){
+            $("#processImage5").append(list);
+        } else {
+            $("#processImage6").append(list);
         }
     }
 
     //初始化勾选框
-    function initOne() {
-        $('#scale').comboboxfilter({
+    function initSelect(id,text,data,num,number) {
+        $('#'+id).comboboxfilter({
             url: '',
             scope: 'FilterQuery2',
             multiple: true,
-            unlimitText: '旋转',
-            data: data1,
+            unlimitText: text,
+            data: data,
             onChange: function (newValue) {
-                //自动拼接到备用json字段
-                var revolveData = '"revolve":';
-                revolveData += '[' + newValue + ']';
-                $('#revolve_json').val(revolveData);
-
                 //找出不同元素，进行增加或者删除操作
-                var oldValue = $("#old_value1").val();
+                var oldValue = $("#old_value"+num).val();
                 var curValue;
                 if (oldValue != null && oldValue != "") {
                     oldValue = oldValue.split(",");
@@ -275,138 +313,42 @@
                 }
                 if (oldValue.length > curValue.length) {
                     findDifferent(oldValue, curValue);
-                    $("#" + needCooperateId + "one").remove();
+                    $("#" + needCooperateId + number).remove();
                 } else {
                     findDifferent(curValue, oldValue);
-                    getProcessImage(currentImageName, 1, needCooperateId);
-                    addLi(currentUrl, "one", needCooperateId);
+                    getProcessImage(currentImageName, num, needCooperateId);
+                    addLi(currentUrl, number, needCooperateId);
                 }
 
                 //保存最新value到oldvalue以便下次进行比较
-                $("#old_value1").val(newValue);
+                $("#old_value"+num).val(newValue);
             }
         });
         //取消切换tab页后自动增加的隐藏样式,并设置当前tab页的全局标识
-        $("#revolve").css("display", "block");
+        $("#"+id).css("display", "block");
         $("#FilterQuery2").css("display", "block");
         $(".selected-query").css("display", "block");
-        currentType = 1;
+        currentType = num;
 
         //清除图片和标签
         $(".J_FilterQueryClear").click();
-        $("#processImage1").find("li").remove();
+        $("#processImage"+num).find("li").remove();
     }
 
-    function initTwo() {
-        $('#dim').comboboxfilter({
-            url: '',
-            scope: 'FilterQuery2',
-            multiple: true,
-            unlimitText: '模糊',
-            data: data2,
-            onChange: function (newValue) {
-                var dimData = '"dim":';
-                dimData += '[' + newValue + ']';
-                $('#dim_json').val(dimData);
 
-                //找出不同元素，进行增加或者删除操作
-                var oldValue = $("#old_value2").val();
-                var curValue;
-                if (oldValue != null && oldValue != "") {
-                    oldValue = oldValue.split(",");
-                } else {
-                    oldValue = [];
-                }
-                if (newValue != null && newValue != "") {
-                    curValue = newValue.split(",");
-                } else {
-                    curValue = [];
-                }
-                if (oldValue.length > curValue.length) {
-                    findDifferent(oldValue, curValue);
-                    $("#" + needCooperateId + "two").remove();
-                } else {
-                    findDifferent(curValue, oldValue);
-                    addLi(currentUrl, "two", needCooperateId);
-                }
-
-                //保存最新value到oldvalue以便下次进行比较
-                $("#old_value2").val(newValue);
+    //初始化下拉框2
+    function initSingleSelect(id,data) {
+        var option = "";
+        if (data != null){
+            for (var i=0;i<data.length;i++){
+                var val = data[i].id;
+                var text = data[i].text;
+                option += "<option value='"+val+"'>"+text+"</option>"
             }
-        });
-        $("#dim").css("display", "block");
-        $("#FilterQuery2").css("display", "block");
-        currentType = 2;
-
-        //清除图片和标签
-        $(".J_FilterQueryClear").click();
-        $("#processImage2").find("li").remove();
-    }
-
-    function initThree() {
-        $('#mosaic').comboboxfilter({
-            url: '',
-            scope: 'FilterQuery2',
-            multiple: true,
-            unlimitText: '打马',
-            data: data3,
-            onChange: function (newValue) {
-                var mosaicData = '"mosaic":';
-                mosaicData += '[' + newValue + ']';
-                $('#mosaic_json').val(mosaicData);
-
-                //找出不同元素，进行增加或者删除操作
-                var oldValue = $("#old_value3").val();
-                var curValue;
-                if (oldValue != null && oldValue != "") {
-                    oldValue = oldValue.split(",");
-                } else {
-                    oldValue = [];
-                }
-                if (newValue != null && newValue != "") {
-                    curValue = newValue.split(",");
-                } else {
-                    curValue = [];
-                }
-                if (oldValue.length > curValue.length) {
-                    findDifferent(oldValue, curValue);
-                    $("#" + needCooperateId + "three").remove();
-                } else {
-                    findDifferent(curValue, oldValue);
-                    addLi(currentUrl, "three", needCooperateId);
-                }
-
-                //保存最新value到oldvalue以便下次进行比较
-                $("#old_value3").val(newValue);
-            }
-        });
-        $("#mosaic").css("display", "block");
-        $("#FilterQuery2").css("display", "block");
-        currentType = 3;
-
-        //清除图片和标签
-        $(".J_FilterQueryClear").click();
-        $("#processImage3").find("li").remove();
-    }
-
-    //找出两个数组中不同的元素,array1>array2
-    function findDifferent(array1, array2) {
-        var differValue = array1[0];
-        for (var i = 0; i < array1.length; i++) {
-            for (var j = 0; j < array2.length; j++) {
-                if (array1[i] == array2[j]) {
-                    if (differValue == array1[i]) {
-                        differValue = null;
-                    }
-                    break;
-                } else {
-                    differValue = array1[i];
-                    continue;
-                }
-            }
+            $("#"+id).append(option);
         }
-        needCooperateId = differValue;
     }
+
 
     //获取加工后的图片
     function getProcessImage(image, type, value) {
@@ -418,26 +360,32 @@
             case 1:
                 processType["name"] = "scale";
                 processType["value"] = value;
+                op.push(processType);
                 break;
             case 2:
                 processType["name"] = "rotate";
                 processType["value"] = value;
+                op.push(processType);
                 break;
             case 3:
                 processType["name"] = "addsum";
                 processType["value"] = value;
+                op.push(processType);
                 break;
             case 4:
                 processType["name"] = "fuzzy";
                 processType["value"] = value;
+                op.push(processType);
                 break;
             case 5:
                 processType["name"] = "brighter_darker";
                 processType["value"] = value;
+                op.push(processType);
                 break;
             case 6:
                 processType["name"] = "gaussian_noise";
                 processType["value"] = value;
+                op.push(processType);
                 break;
         }
         data["op"] = op;
@@ -455,6 +403,45 @@
                 }
             }
         });
+    }
+
+    //找出两个数组中不同的元素,array1>array2
+    function findDifferent(array1, array2) {
+        var differValue;
+        //判断标识是否需要继续循环
+        var flag = false;
+        for (var i = 0; i < array1.length; i++) {
+            if (!flag) {
+                differValue = array1[i];
+                for (var j = 0; j < array2.length; j++) {
+                    if (array1[i] == array2[j]) {
+                        break;
+                    } else {
+                        if (j == array2.length - 1) {
+                            flag = true;
+                            differValue = array1[i];
+                            break;
+                        } else {
+                            continue;
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+        needCooperateId = differValue;
+    }
+
+    
+    //切换tab时清空所有oldvalue
+    function emptyOldValue() {
+        $("old_value1").val("");
+        $("old_value2").val("");
+        {#$("old_value3").val("");#}
+        $("old_value4").val("");
+        $("old_value5").val("");
+        $("old_value6").val("");
     }
 </script>
 </body>
